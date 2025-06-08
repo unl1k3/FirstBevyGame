@@ -1,4 +1,4 @@
-use bevy::color::palettes::css::LIMEGREEN;
+//use bevy::color::palettes::css::LIMEGREEN;
 use bevy::input::keyboard::{Key, KeyboardInput};
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -40,7 +40,7 @@ fn main() {
 fn spawn_word(
     mut commands: Commands,
     main_font: Res<MainFont>,
-    width: f32,
+    _width: f32,
     height: f32,
     word: &str,
 ) {
@@ -61,22 +61,11 @@ fn setup_font(mut commands: Commands, asset_server: Res<AssetServer>) {
     }));
 }
 fn setup(mut commands: Commands, main_font: Res<MainFont>, window_size: Res<WindowSize>) {
-    /*let font = asset_server.load("fonts/FiraSans-Bold.ttf");
-    let text_font = TextFont {
-        font: font.clone(),
-        font_size: 50.0,
-        ..default()
-    };
-    */
-    // let font = asset_server.load("fonts/FiraSans-Bold.ttf");
     println!(
         "Dimensioni finestra:{}x{}",
         window_size.width, window_size.height
     );
     commands.spawn(Camera2d);
-
-    // Demonstrate changing translation
-    //   let mut rng = rand::rng();
 
     let word = "ciao";
     spawn_word(
@@ -86,42 +75,6 @@ fn setup(mut commands: Commands, main_font: Res<MainFont>, window_size: Res<Wind
         window_size.height,
         word,
     );
-
-    /*let spacing = 30.0; // distanza tra lettere
-    let start_x = -(word.len() as f32 - 1.0) * spacing / 2.0; // centrare orizzontalmente
-
-    for (i, c) in word.chars().enumerate() {
-        let random_number1: f32 = rng.random();
-        let random_number2: f32 = rng.random();
-        let random_number3: f32 = rng.random();
-        let x = start_x + i as f32 * spacing;
-
-        commands.spawn((
-            Text2d::new(c.to_string()),
-            text_font.clone(),
-            TextColor(Srgba::new(random_number1, random_number2, random_number3, 1.0).into()),
-            Transform::from_xyz(x, window_size.height / 2.0, 0.0), // posizione orizzontale
-            GlobalTransform::default(),
-            AnimateTranslation,
-            RandomChar { target: i as i32 },
-        ));
-
-        //if i == 0 {
-        //  commands.entity(ent).insert(RightChar);
-        //}
-        //  println!("val i:{}", i);
-    }
-    */
-    /*
-    commands.spawn((
-        Text2d::new("translation"),
-        text_font.clone(),
-        TextLayout::new_with_justify(text_justification),
-        TextColor(LIGHT_BLUE.into()),
-        AnimateTranslation,
-        MyText,
-    ));*/
-    //  .with_child((TextSpan("::bis".to_string()), TextColor(LIGHT_GREEN.into())));
 }
 
 fn animate_translation(
@@ -132,20 +85,10 @@ fn animate_translation(
     // let mut i = 0;
     for mut transform in &mut query {
         //transform.translation.x += (window_size.width / 2.0) * ops::sin(time.elapsed_secs());
-        transform.translation.y -= 2.0; //time.elapsed_secs(); //(window_size.height / 4.0) * ops::cos(time.elapsed_secs());
+        transform.translation.y -= 1.0; //time.elapsed_secs(); //(window_size.height / 4.0) * ops::cos(time.elapsed_secs());
         if transform.translation.y < (-window_size.height / 2.0) {
             transform.translation.y = window_size.height / 2.0;
         }
-        /*
-        i = i + 1;
-        println!(
-            "lettera:{} x={},y={} Tempo:{}",
-            i,
-            transform.translation.x,
-            transform.translation.y,
-            time.elapsed_secs()
-        );
-        */
     }
 }
 
@@ -194,7 +137,6 @@ fn key_pressed(
     mut events: EventReader<KeyboardInput>,
     mut query: Query<(Entity, &mut Text2d, &mut RandomChar, &mut TextColor)>,
     mut index: ResMut<IndexTarget>,
-    asset_server: Res<AssetServer>,
     window_size: ResMut<WindowSize>,
     main_font: Res<MainFont>,
 ) {
@@ -207,23 +149,18 @@ fn key_pressed(
             Key::Character(c) => {
                 let pressed_char = c.as_str();
                 let target_index = index.0;
-                let green = *TextColor(LIMEGREEN.into());
+                //let green = *TextColor(LIMEGREEN.into());
 
                 // Cerca solo l'entità giusta
-                for (ent, text, random_word, mut textcolor) in &mut query {
+                for (ent, text, random_word, mut _textcolor) in &mut query {
                     if text.0 == pressed_char && random_word.target == target_index {
                         println!(
                             "Preso!!:{} {} {}",
                             text.0, random_word.target, random_word.tot
                         );
-                        textcolor.0 = green;
+
                         index.0 += 1;
                         commands.entity(ent).despawn();
-                        /*if index.0 == 4 {
-                        for e in query.iter() {
-                          commands.entity(text).despawn();
-                        }
-                        */
 
                         if index.0 == random_word.tot {
                             // text.0 == "Hello";
@@ -260,18 +197,6 @@ fn key_pressed(
     }
 }
 
-/*fn keyboard_input(
-    input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<&mut Text2d, With<RandomWord>>,
-) {
-    if input.just_pressed(KeyCode::KeyR) {
-        println!("Prmuto r");
-        for mut text in &mut query {
-            println!("testo:{}", text.0);
-        }
-    }
-}
-*/
 impl Default for WindowSize {
     fn default() -> Self {
         Self {
