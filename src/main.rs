@@ -167,7 +167,31 @@ fn key_pressed(
                             println!("Tutte le lettere corrette! Rimuovo.");
                             index.0 = 0;
                             // let font: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
-                            let word = "ciauz";
+                            //let word = "ciauz";
+                            let mut rng = rand::rng();
+                            let list_words = vec![
+                                "gattino",
+                                "montagna",
+                                "arcobaleno",
+                                "libro",
+                                "oceano",
+                                "tavolo",
+                                "ventilatore",
+                                "melodia",
+                                "sorpresa",
+                                "pacco",
+                                "pianoforte",
+                                "astronave",
+                                "dinosauro",
+                                "cioccolato",
+                                "regalino",
+                            ];
+                            let random_word = list_words.choose(&mut rng);
+                            let word = random_word.unwrap();
+                            /*match random_word {
+                                Some(word) => println!("Parola casuale: {}", word),
+                                None => println!("Il vettore è vuoto!"),
+                            }*/
 
                             let spacing = 30.0;
                             let tot = word.len() as i32;
