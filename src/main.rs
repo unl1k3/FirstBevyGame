@@ -5,6 +5,9 @@ use bevy::window::PrimaryWindow;
 use rand::prelude::*;
 
 #[derive(Resource, Debug)]
+struct WordList(Vec<String>);
+
+#[derive(Resource, Debug)]
 struct WindowSize {
     width: f32,
     height: f32,
@@ -33,9 +36,26 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .init_resource::<WindowSize>()
         .init_resource::<IndexTarget>()
-        .add_systems(Startup, (setup_window_size, setup_font, setup).chain())
+        .add_systems(
+            Startup,
+            (load_words_system, setup_window_size, setup_font, setup).chain(),
+        )
         .add_systems(Update, (animate_translation, key_pressed))
         .run();
+}
+// Carica le parole in una risorsa all'avvio
+fn load_words_system(asset_server: Res<AssetServer>, mut commands: Commands) {
+    let path = "words/it_50k.txt";
+    let file = std::fs::read_to_string(format!("assets/{}", path))
+        .expect("Non riesco a leggere il file delle parole");
+
+    let words: Vec<String> = file
+        .lines()
+        .map(|l| l.trim().to_string())
+        .filter(|l| !l.is_empty())
+        .collect();
+
+    commands.insert_resource(WordList(words));
 }
 fn spawn_word(
     mut commands: Commands,
@@ -139,6 +159,7 @@ fn key_pressed(
     mut index: ResMut<IndexTarget>,
     window_size: ResMut<WindowSize>,
     main_font: Res<MainFont>,
+    word_list: Res<WordList>,
 ) {
     for event in events.read() {
         if !event.state.is_pressed() {
@@ -168,25 +189,10 @@ fn key_pressed(
                             index.0 = 0;
                             // let font: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
                             //let word = "ciauz";
+
                             let mut rng = rand::rng();
-                            let list_words = vec![
-                                "gattino",
-                                "montagna",
-                                "arcobaleno",
-                                "libro",
-                                "oceano",
-                                "tavolo",
-                                "ventilatore",
-                                "melodia",
-                                "sorpresa",
-                                "pacco",
-                                "pianoforte",
-                                "astronave",
-                                "dinosauro",
-                                "cioccolato",
-                                "regalino",
-                            ];
-                            let random_word = list_words.choose(&mut rng);
+
+                            let random_word = word_list.0.choose(&mut rng);
                             let word = random_word.unwrap();
                             /*match random_word {
                                 Some(word) => println!("Parola casuale: {}", word),
